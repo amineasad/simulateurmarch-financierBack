@@ -23,6 +23,5 @@ public class User {
 
     private String motDePasse;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Question> questions;
+
 }
