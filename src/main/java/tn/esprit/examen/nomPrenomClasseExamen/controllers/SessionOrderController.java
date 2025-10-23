@@ -12,7 +12,7 @@ import tn.esprit.examen.nomPrenomClasseExamen.services.SessionOrderService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/session-orders")
 @CrossOrigin("*")
 @RequiredArgsConstructor
 public class SessionOrderController {
@@ -20,7 +20,7 @@ public class SessionOrderController {
     private final SessionOrderService orderService;
 
     /**
-     * POST /api/orders - Passer un ordre
+     * POST /api/session-orders - Passer un ordre
      */
     @PostMapping
     public ResponseEntity<SessionOrder> placeOrder(@RequestBody SessionOrder order) {
@@ -33,7 +33,7 @@ public class SessionOrderController {
     }
 
     /**
-     * POST /api/orders/{id}/execute - Exécuter un ordre
+     * POST /api/session-orders/{id}/execute - Exécuter un ordre
      */
     @PostMapping("/{id}/execute")
     public ResponseEntity<SessionOrder> executeOrder(@PathVariable Long id) {
@@ -46,7 +46,7 @@ public class SessionOrderController {
     }
 
     /**
-     * POST /api/orders/{id}/cancel - Annuler un ordre
+     * POST /api/session-orders/{id}/cancel - Annuler un ordre
      */
     @PostMapping("/{id}/cancel")
     public ResponseEntity<SessionOrder> cancelOrder(@PathVariable Long id) {
@@ -59,7 +59,7 @@ public class SessionOrderController {
     }
 
     /**
-     * GET /api/orders/{id} - Ordre par ID
+     * GET /api/session-orders/{id} - Ordre par ID
      */
     @GetMapping("/{id}")
     public ResponseEntity<SessionOrder> getOrderById(@PathVariable Long id) {
@@ -71,7 +71,7 @@ public class SessionOrderController {
     }
 
     /**
-     * GET /api/orders/session/{sessionId} - Tous les ordres d'une session
+     * GET /api/session-orders/session/{sessionId} - Tous les ordres d'une session
      */
     @GetMapping("/session/{sessionId}")
     public ResponseEntity<List<SessionOrder>> getSessionOrders(@PathVariable Long sessionId) {
@@ -79,7 +79,7 @@ public class SessionOrderController {
     }
 
     /**
-     * GET /api/orders/session/{sessionId}/user/{userId} - Ordres d'un utilisateur
+     * GET /api/session-orders/session/{sessionId}/user/{userId} - Ordres d'un utilisateur
      */
     @GetMapping("/session/{sessionId}/user/{userId}")
     public ResponseEntity<List<SessionOrder>> getUserOrders(
@@ -89,7 +89,7 @@ public class SessionOrderController {
     }
 
     /**
-     * GET /api/orders/session/{sessionId}/activity - Feed d'activité
+     * GET /api/session-orders/session/{sessionId}/activity - Feed d'activité
      */
     @GetMapping("/session/{sessionId}/activity")
     public ResponseEntity<List<SessionOrder>> getActivityFeed(@PathVariable Long sessionId) {
@@ -97,7 +97,7 @@ public class SessionOrderController {
     }
 
     /**
-     * GET /api/orders/session/{sessionId}/volume - Volume total
+     * GET /api/session-orders/session/{sessionId}/volume - Volume total
      */
     @GetMapping("/session/{sessionId}/volume")
     public ResponseEntity<Double> getTotalVolume(@PathVariable Long sessionId) {
