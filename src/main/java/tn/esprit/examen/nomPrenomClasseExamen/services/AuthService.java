@@ -99,4 +99,8 @@ public class AuthService {
 
         return user;
     }
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + id));
+    }
 }

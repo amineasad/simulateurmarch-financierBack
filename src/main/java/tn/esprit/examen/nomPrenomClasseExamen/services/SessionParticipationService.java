@@ -27,38 +27,42 @@ public class SessionParticipationService {
 
     @Transactional
     public SessionParticipation joinSession(Long sessionId, Long userId) {
-        log.info("👤 User {} rejoint session {}", userId, sessionId);
+        log.info("👤 User {} tente de rejoindre la session {}", userId, sessionId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         TradingSession session = sessionService.getSessionById(sessionId);
 
-        if (participationRepository.existsBySessionIdAndUserId(sessionId, userId)) {
-            throw new RuntimeException("Vous participez déjà");
-        }
+        // ✅ Si la participation existe déjà, on la renvoie simplement (pour permettre de "revenir")
+        return participationRepository.findBySessionIdAndUserId(sessionId, userId)
+                .orElseGet(() -> {
+                    // Vérifie la capacité seulement si c'est une nouvelle participation
+                    if (sessionService.isSessionFull(sessionId)) {
+                        throw new RuntimeException("Session complète");
+                    }
 
-        if (sessionService.isSessionFull(sessionId)) {
-            throw new RuntimeException("Session complète");
-        }
+                    // Vérifie le statut
+                    if (session.getStatus() != SessionStatus.WAITING && session.getStatus() != SessionStatus.OPEN) {
+                        throw new RuntimeException("Session n'accepte plus de participants");
+                    }
 
-        if (session.getStatus() != SessionStatus.WAITING && session.getStatus() != SessionStatus.OPEN) {
-            throw new RuntimeException("Session n'accepte plus de participants");
-        }
+                    // Crée une nouvelle participation
+                    SessionParticipation participation = SessionParticipation.builder()
+                            .session(session)
+                            .user(user)
+                            .cashActuel(session.getCashInitial())
+                            .valeurPortefeuille(session.getCashInitial())
+                            .rendement(0.0)
+                            .connecte(false)
+                            .nombreOrdres(0)
+                            .volumeTotal(0.0)
+                            .build();
 
-        SessionParticipation participation = SessionParticipation.builder()
-                .session(session)
-                .user(user)
-                .cashActuel(session.getCashInitial())
-                .valeurPortefeuille(session.getCashInitial())
-                .rendement(0.0)
-                .connecte(false)
-                .nombreOrdres(0)
-                .volumeTotal(0.0)
-                .build();
-
-        return participationRepository.save(participation);
+                    return participationRepository.save(participation);
+                });
     }
+
 
     @Transactional
     public SessionParticipation joinSessionByCode(String codeAcces, Long userId) {

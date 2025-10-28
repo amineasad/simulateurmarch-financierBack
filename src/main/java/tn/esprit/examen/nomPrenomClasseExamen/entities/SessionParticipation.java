@@ -2,6 +2,8 @@
 
 package tn.esprit.examen.nomPrenomClasseExamen.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
@@ -22,11 +24,13 @@ public class SessionParticipation implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private TradingSession session;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @Column(nullable = false)
