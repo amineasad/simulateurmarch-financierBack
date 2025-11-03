@@ -55,15 +55,13 @@ public class MarketEventController {
     /**
      * POST /api/events/{id}/trigger - Déclencher un événement
      */
+// MarketEventController.java
     @PostMapping("/{id}/trigger")
-    public ResponseEntity<MarketEvent> triggerEvent(@PathVariable Long id) {
-        try {
-            MarketEvent triggered = eventService.triggerEvent(id);
-            return ResponseEntity.ok(triggered);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Void> triggerEvent(@PathVariable Long id) {
+        eventService.triggerEvent(id);
+        return ResponseEntity.noContent().build(); // 204
     }
+
 
     /**
      * POST /api/events/session/{sessionId}/check-scheduled - Vérifier événements programmés
