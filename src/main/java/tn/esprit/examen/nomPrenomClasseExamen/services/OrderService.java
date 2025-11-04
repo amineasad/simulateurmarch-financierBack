@@ -3,6 +3,9 @@ package tn.esprit.examen.nomPrenomClasseExamen.services;
 import tn.esprit.examen.nomPrenomClasseExamen.DTO.*;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.*;
 import tn.esprit.examen.nomPrenomClasseExamen.repositories.*;
+import tn.esprit.examen.nomPrenomClasseExamen.entities.UserTradingLimits;
+import tn.esprit.examen.nomPrenomClasseExamen.entities.UserMarketControl;
+import tn.esprit.examen.nomPrenomClasseExamen.services.userbook.UserBookService;
 import tn.esprit.examen.nomPrenomClasseExamen.events.DomainEvent;
 import tn.esprit.examen.nomPrenomClasseExamen.events.EventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,9 @@ public class OrderService {
     private final AssetRepository assetRepository;
     private final EventPublisher eventPublisher;
     private final PortfolioSettlementService settlementService;
+    private final UserTradingLimitsRepository userTradingLimitsRepository;
+    private final UserMarketControlRepository userMarketControlRepository;
+    private final UserBookService userBookService;
     private final Map<Long, OrderBook> orderBooks = new ConcurrentHashMap<>();
 
     /**
@@ -51,6 +57,17 @@ public class OrderService {
         // Récupération de l'actif
         Asset asset = assetRepository.findById(dto.Id())
                 .orElseThrow(() -> new IllegalArgumentException("Actif non trouvé"));
+
+        // Contrôles HALT ciblé
+        if (isUserHalted(userId, dto.Id())) {
+            return rejectOrder(userId, asset, dto, "Utilisateur HALTED sur cet actif");
+        }
+
+        // Validation des limites utilisateur
+        String limitViolation = checkUserLimits(userId, dto.Id(), dto.quantity(), dto.price());
+        if (limitViolation != null) {
+            return rejectOrder(userId, asset, dto, limitViolation);
+        }
 
         // Validation des fonds/quantités
         if (dto.OrderSide() == OrderSide.BUY) {
@@ -80,6 +97,7 @@ public class OrderService {
 
         OrderBook orderBook = orderBooks.computeIfAbsent(dto.Id(), id -> new OrderBook());
         orderBook.add(order);
+        userBookService.onOrderAddedOrUpdated(order);
 
         // Tentative de matching
         matchOrders(dto.Id());
@@ -177,6 +195,10 @@ public class OrderService {
             updateOrderAfterFill(bestBuy, quantity);
             updateOrderAfterFill(bestSell, quantity);
 
+            // Mettre à jour les carnets utilisateurs
+            userBookService.onOrderAddedOrUpdated(bestBuy);
+            userBookService.onOrderAddedOrUpdated(bestSell);
+
             // Publication d'événements post-commit
             eventPublisher.publishAfterCommit(
                 DomainEvent.of("TRANSACTION", TradeView.from(trade), bestBuy.getUserId().toString())
@@ -255,6 +277,34 @@ public class OrderService {
         eventPublisher.publishAfterCommit(
             DomainEvent.of("ORDER_STATUS", OrderView.from(order), order.getUserId().toString())
         );
+    }
+
+    private boolean isUserHalted(Long userId, Long assetId) {
+        return userMarketControlRepository.findByUserIdAndAssetId(userId, assetId)
+                .map(ctrl -> ctrl.getState() == UserMarketControl.State.HALTED_USER)
+                .orElse(false);
+    }
+
+    private String checkUserLimits(Long userId, Long assetId, int qty, BigDecimal price) {
+        var limits = userTradingLimitsRepository.findEffectiveLimits(userId, assetId);
+        if (limits.isEmpty()) return null;
+        UserTradingLimits effective = limits.get(0); // asset-specific prioritaire (requête ordonnée)
+        if (effective.isBlocked()) return "Utilisateur bloqué";
+        if (effective.getMaxOrderSize() != null && qty > effective.getMaxOrderSize()) return "Taille d'ordre maximale dépassée";
+
+        if (effective.getMaxOpenOrders() != null) {
+            int openOrders = (int) orderRepository.findByUserId(userId).stream()
+                    .filter(o -> o.getAsset().getId().equals(assetId) && (o.getStatus() == OrderStatus.PENDING || o.getStatus() == OrderStatus.PARTIALLY_FILLED))
+                    .count();
+            if (openOrders >= effective.getMaxOpenOrders()) return "Nombre d'ordres ouverts dépassé";
+        }
+
+        if (effective.getMaxDailyNotional() != null && price != null) {
+            BigDecimal notionalEstimate = price.multiply(BigDecimal.valueOf(qty));
+            // Simplification: on ne calcule pas le cumulé journalier ici, à raffiner avec une table d'agrégats
+            if (notionalEstimate.compareTo(effective.getMaxDailyNotional()) > 0) return "Notional journalier dépassé (estimation)";
+        }
+        return null;
     }
 
     private void pushOrderBookSnapshot(Long assetId) {

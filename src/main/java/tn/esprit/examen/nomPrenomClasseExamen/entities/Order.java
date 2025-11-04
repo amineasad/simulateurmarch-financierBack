@@ -44,6 +44,9 @@ public class Order {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "suspended", nullable = false)
+    private boolean suspended = false;
+
     // Constructeurs
     public Order() {}
 
@@ -140,5 +143,8 @@ public class Order {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
+    public boolean isSuspended() { return suspended; }
+    public void setSuspended(boolean suspended) { this.suspended = suspended; }
 }
 
