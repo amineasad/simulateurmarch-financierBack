@@ -37,4 +37,6 @@ public interface SessionPositionRepository extends JpaRepository<SessionPosition
             @Param("sessionId") Long sessionId,
             @Param("userId") Long userId
     );
+    // ✅ Pour la liste des positions d’un user dans une session (utilisé par le contrôleur Positions)
+    List<SessionPosition> findBySession_IdAndUser_Id(Long sessionId, Long userId);
 }
