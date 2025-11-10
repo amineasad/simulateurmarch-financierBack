@@ -1,5 +1,4 @@
-// tn.esprit.examen.nomPrenomClasseExamen.repositories.SessionOrderRepository
-
+// src/main/java/tn/esprit/examen/nomPrenomClasseExamen/repositories/SessionOrderRepository.java
 package tn.esprit.examen.nomPrenomClasseExamen.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,25 +13,36 @@ import java.util.List;
 @Repository
 public interface SessionOrderRepository extends JpaRepository<SessionOrder, Long> {
 
-    List<SessionOrder> findBySessionIdOrderByOrderTimeDesc(Long sessionId);
+    // Ordres d'une session triés par date
+    List<SessionOrder> findBySession_IdOrderByOrderTimeDesc(Long sessionId);
 
-    List<SessionOrder> findBySessionIdAndUserIdOrderByOrderTimeDesc(Long sessionId, Long userId);
+    // Ordres d'un utilisateur dans une session
+    List<SessionOrder> findBySession_IdAndUser_IdOrderByOrderTimeDesc(Long sessionId, Long userId);
 
-    List<SessionOrder> findBySessionIdAndSymbolOrderByOrderTimeDesc(Long sessionId, String symbol);
+    // Ordres par statut
+    List<SessionOrder> findBySession_IdAndStatusOrderByOrderTimeDesc(Long sessionId, OrderStatus status);
 
-    List<SessionOrder> findBySessionIdAndStatusOrderByOrderTimeAsc(Long sessionId, OrderStatus status);
+    // Ordres d'un utilisateur par statut
+    List<SessionOrder> findBySession_IdAndUser_IdAndStatusOrderByOrderTimeDesc(
+            Long sessionId,
+            Long userId,
+            OrderStatus status
+    );
 
-    Long countBySessionIdAndUserId(Long sessionId, Long userId);
+    // Compter les ordres par statut
+    long countBySession_IdAndStatus(Long sessionId, OrderStatus status);
 
-    @Query("SELECT SUM(o.price * o.quantity) FROM SessionOrder o " +
-            "WHERE o.session.id = :sessionId AND o.user.id = :userId AND o.status = 'EXECUTED'")
-    Double calculateUserVolume(@Param("sessionId") Long sessionId, @Param("userId") Long userId);
-
+    // Ordres récemment exécutés (feed d'activité)
     @Query("SELECT o FROM SessionOrder o WHERE o.session.id = :sessionId " +
-            "AND o.status = 'EXECUTED' ORDER BY o.executionTime DESC")
+            "AND o.status = 'EXECUTED' " +
+            "ORDER BY o.executionTime DESC")
     List<SessionOrder> getRecentExecutedOrders(@Param("sessionId") Long sessionId);
 
-    @Query("SELECT SUM(o.price * o.quantity) FROM SessionOrder o " +
+    // Volume total tradé
+    @Query("SELECT SUM(o.filledQuantity * o.executionPrice) FROM SessionOrder o " +
             "WHERE o.session.id = :sessionId AND o.status = 'EXECUTED'")
     Double calculateTotalVolume(@Param("sessionId") Long sessionId);
+
+    // Ordres d'un symbole
+    List<SessionOrder> findBySession_IdAndSymbolOrderByOrderTimeDesc(Long sessionId, String symbol);
 }

@@ -5,6 +5,7 @@ package tn.esprit.examen.nomPrenomClasseExamen.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class TradingSession implements Serializable {
     private SessionStatus status;
 
     @Column(nullable = false)
-    private LocalDateTime heureDebut;
+    private LocalDateTime heureDebut;  // ✅ Changé de Instant à LocalDateTime
 
     @Column(nullable = false)
     private LocalDateTime heureFin;
