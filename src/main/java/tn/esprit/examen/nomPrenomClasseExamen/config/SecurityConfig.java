@@ -24,7 +24,7 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ws-trading/**").permitAll()  // ✅ Pour WebSocket
+                        .requestMatchers("/ws/**").permitAll()  // ✅ Pour WebSocket
                         .requestMatchers("/api/**").permitAll()         // ✅ Pour tes API REST
                         .anyRequest().permitAll()
                 )
