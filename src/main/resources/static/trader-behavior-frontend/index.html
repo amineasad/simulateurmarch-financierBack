@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de Comportement des Traders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="#4FC3F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 22V12H17V22" stroke="#4FC3F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>TradeSmart Analytics</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li>Tableau de bord</li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content">
+            <section class="section dashboard active" data-section="dashboard">
+                <section class="summary-cards">
+                <div class="card">
+                    <h3>Stratégies Analysées</h3>
+                    <div class="card-value">4</div>
+                    <div class="card-trend positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 15L12 9L6 15" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>+2 depuis hier</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Win Rate Moyen</h3>
+                    <div class="card-value">52.8%</div>
+                    <div class="card-trend positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 15L12 9L6 15" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>+1.2% cette semaine</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Profit Factor</h3>
+                    <div class="card-value">1.35</div>
+                    <div class="card-trend negative">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>-0.05 cette semaine</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>PnL Total</h3>
+                    <div class="card-value">€12,450</div>
+                    <div class="card-trend positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 15L12 9L6 15" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>+€1,250 ce mois</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strategy-analysis">
+                <div class="section-header">
+                    <h2>Analyse des Stratégies</h2>
+                    <button id="refresh-btn" class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 4V10H7" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M23 20V14H17" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.49 9C19.9828 7.56678 19.1209 6.2854 17.9845 5.27542C16.8482 4.26543 15.4745 3.55976 13.9917 3.22426C12.5089 2.88875 10.9652 2.93434 9.50481 3.35677C8.04437 3.77921 6.71475 4.56471 5.64 5.64L1 10M23 14L18.36 18.36C17.2853 19.4353 15.9556 20.2208 14.4952 20.6432C13.0348 21.0657 11.4911 21.1112 10.0083 20.7757C8.52547 20.4402 7.1518 19.7346 6.01547 18.7246C4.87913 17.7146 4.01717 16.4332 3.51 15" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Actualiser
+                    </button>
+                </div>
+                
+                <div class="strategy-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Stratégie</th>
+                                <th>Classification</th>
+                                <th>Win Rate</th>
+                                <th>Profit Factor</th>
+                                <th>PnL Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="strategy-table-body">
+                            <!-- Les données seront chargées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="charts-container">
+                <div class="chart-card">
+                    <h3>Performance par Stratégie</h3>
+                    <div class="chart" id="performance-chart">
+                        <!-- Chart will be rendered here by JavaScript -->
+                        <div class="chart-placeholder">
+                            <div class="bar-chart">
+                                <div class="bar" style="height: 70%;" data-value="70%"></div>
+                                <div class="bar" style="height: 45%;" data-value="45%"></div>
+                                <div class="bar" style="height: 30%;" data-value="30%"></div>
+                                <div class="bar" style="height: 60%;" data-value="60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Distribution des Résultats</h3>
+                    <div class="chart" id="distribution-chart">
+                        <!-- Chart will be rendered here by JavaScript -->
+                        <div class="chart-placeholder">
+                            <div class="pie-chart">
+                                <div class="slice slice1" data-value="58%"></div>
+                                <div class="slice slice2" data-value="25%"></div>
+                                <div class="slice slice3" data-value="17%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section strategies" data-section="strategies">
+                <h2>Détails des Stratégies</h2>
+                <p>Gestion et configuration des stratégies de trading.</p>
+            </section>
+
+            <section class="section reports" data-section="reports">
+                <h2>Rapports</h2>
+                <p>Génération et visualisation des rapports d'Analyse.</p>
+            </section>
+
+            <section class="section settings" data-section="settings">
+                <h2>Paramètres</h2>
+                <p>Configuration des paramètres de l'application.</p>
+            </section>
+        </div>
+
+        <footer class="app-footer">
+            <p>&copy; 2023 TradeSmart Analytics. Tous droits réservés.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

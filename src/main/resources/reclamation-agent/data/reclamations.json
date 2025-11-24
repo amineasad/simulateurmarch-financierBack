@@ -1,0 +1,30 @@
+{
+  "exemples_typiques": [
+    {
+      "texte": "La plateforme a crashé pendant que je testais une stratégie de trading, j'ai perdu ma simulation !",
+      "categorie_attendu": "technique"
+    },
+    {
+      "texte": "Les prix des actifs simulés ne correspondent pas aux marchés réels, c'est trompeur pour l'apprentissage.",
+      "categorie_attendu": "simulation"
+    },
+    {
+      "texte": "Je n'arrive pas à placer d'ordres stop-loss sur l'interface mobile.",
+      "categorie_attendu": "fonctionnalite"
+    },
+    {
+      "texte": "Mon solde simulé a été reset sans raison, j'avais un bon classement !",
+      "categorie_attendu": "compte"
+    },
+    {
+      "texte": "Les graphiques en temps réel laggent énormément pendant les heures de trading simulé.",
+      "categorie_attendu": "performance"
+    }
+  ],
+  "historique": [],
+  "statistiques_plateforme": {
+    "categories_frequentes": [],
+    "sentiments_moyens": {},
+    "temps_reponse_moyen": ""
+  }
+}
