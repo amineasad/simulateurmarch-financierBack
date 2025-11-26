@@ -2,7 +2,10 @@ package com.pidev.trader.service;
 
 import com.pidev.trader.dto.TraderAnalysisResponse;
 import com.pidev.trader.dto.TraderAnalysisResponse.StrategyResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,12 +19,45 @@ public class TraderAnalysisService {
 
     private static final String PYTHON_SCRIPT_PATH = "src/main/Comportement/AnalyseTrader.py";
 
+    @Value("${trader.useFlask:false}")
+    private boolean useFlask;
+
+    @Value("${trader.flask.baseUrl:http://localhost:5001}")
+    private String traderFlaskBaseUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
     /**
      * Exécute l'analyse des comportements des traders
      * @return Résultats de l'analyse
      */
     public TraderAnalysisResponse analyzeTraderBehavior() {
         try {
+            if (useFlask) {
+                String url = traderFlaskBaseUrl + "/trader/analyze";
+                ResponseEntity<java.util.Map> resp = restTemplate.getForEntity(url, java.util.Map.class);
+                java.util.Map body = resp.getBody();
+                if (body != null && Boolean.TRUE.equals(body.get("success"))) {
+                    List<StrategyResult> strategies = new ArrayList<>();
+                    Object listObj = body.get("strategies");
+                    if (listObj instanceof List<?>) {
+                        for (Object o : (List<?>) listObj) {
+                            if (o instanceof java.util.Map<?, ?> map) {
+                                StrategyResult s = new StrategyResult();
+                                s.setName(String.valueOf(map.getOrDefault("name", "")));
+                                s.setClassification(String.valueOf(map.getOrDefault("classification", "NEUTRE")));
+                                try { s.setWinRate(Double.parseDouble(String.valueOf(map.getOrDefault("winRate", 0)))); } catch (Exception ignored) {}
+                                try { s.setProfitFactor(Double.parseDouble(String.valueOf(map.getOrDefault("profitFactor", 1)))); } catch (Exception ignored) {}
+                                try { s.setPnlTotal(Double.parseDouble(String.valueOf(map.getOrDefault("pnlTotal", 0)))); } catch (Exception ignored) {}
+                                strategies.add(s);
+                            }
+                        }
+                    }
+                    return new TraderAnalysisResponse(strategies, true, null);
+                }
+                String err = body != null ? String.valueOf(body.get("errorMessage")) : "Réponse Flask vide";
+                return new TraderAnalysisResponse(null, false, err);
+            }
             // Exécuter le script Python
             Process process = Runtime.getRuntime().exec("python " + PYTHON_SCRIPT_PATH);
             

@@ -34,7 +34,7 @@ public class ReclamationController {
     }
 
     /**
-     * Analyse une réclamation.
+     * Analyse une réclamation via l'agent Python.
      *
      * @param request Requête contenant le texte de la réclamation
      * @return Résultat de l'analyse
@@ -46,41 +46,11 @@ public class ReclamationController {
             return ResponseEntity.badRequest().build();
         }
 
-        // Mock analysis for testing
-        Map<String, Object> resultat = analyserMock(texteReclamation);
+        Map<String, Object> resultat = pythonReclamationService.analyserReclamation(texteReclamation);
         return ResponseEntity.ok(resultat);
     }
 
-    private Map<String, Object> analyserMock(String texte) {
-        Map<String, Object> result = new HashMap<>();
-        String lowerText = texte.toLowerCase();
-
-        // Simple category detection
-        if (lowerText.contains("crash") || lowerText.contains("problème technique")) {
-            result.put("categorie", "probleme_technique");
-        } else if (lowerText.contains("frais") || lowerText.contains("montant")) {
-            result.put("categorie", "frais_contestes");
-        } else if (lowerText.contains("retard") || lowerText.contains("délai")) {
-            result.put("categorie", "retard_execution");
-        } else {
-            result.put("categorie", "autre");
-        }
-
-        // Simple priority (if contains urgent)
-        if (lowerText.contains("urgent") || lowerText.contains("vite")) {
-            result.put("priorite", "haute");
-        } else if (lowerText.contains("important")) {
-            result.put("priorite", "normale");
-        } else {
-            result.put("priorite", "basse");
-        }
-
-        // Simple response
-        String response = "Nous avons bien reçu votre réclamation concernant " + result.get("categorie") + ". Nous la traiterons avec priorité " + result.get("priorite") + ". Un conseiller vous contactera bientôt.";
-        result.put("reponse_suggeree", response);
-
-        return result;
-    }
+    // Mock retiré: la logique réelle est désormais déléguée au service Python
 
     /**
      * Traite un lot de réclamations.
@@ -95,10 +65,7 @@ public class ReclamationController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Map<String, Object>> resultats = new ArrayList<>();
-        for (String reclamation : reclamations) {
-            resultats.add(analyserMock(reclamation));
-        }
+        List<Map<String, Object>> resultats = pythonReclamationService.traiterLotReclamations(reclamations);
         return ResponseEntity.ok(resultats);
     }
 }

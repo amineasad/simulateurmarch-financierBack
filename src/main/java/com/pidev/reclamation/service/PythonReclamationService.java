@@ -2,7 +2,12 @@ package com.pidev.reclamation.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +35,14 @@ public class PythonReclamationService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Value("${reclamations.useFlask:false}")
+    private boolean useFlask;
+
+    @Value("${reclamations.flask.baseUrl:http://localhost:5001}")
+    private String flaskBaseUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
     /**
      * Analyse une réclamation en utilisant le script Python.
      *
@@ -38,6 +51,9 @@ public class PythonReclamationService {
      */
     public Map<String, Object> analyserReclamation(String texteReclamation) {
         try {
+            if (useFlask) {
+                return callFlaskSingle(texteReclamation);
+            }
             // Création d'un fichier temporaire pour stocker le texte de la réclamation
             Path tempInputFile = createTempFile("reclamation_input", ".txt", texteReclamation);
             Path tempOutputFile = Paths.get(TEMP_DIR, "reclamation_output_" + System.currentTimeMillis() + ".json");
@@ -96,6 +112,9 @@ public class PythonReclamationService {
      */
     public List<Map<String, Object>> traiterLotReclamations(List<String> reclamations) {
         try {
+            if (useFlask) {
+                return callFlaskBatch(reclamations);
+            }
             // Création d'un fichier temporaire pour stocker les réclamations au format JSON
             Map<String, List<String>> inputData = new HashMap<>();
             inputData.put("reclamations", reclamations);
@@ -145,6 +164,26 @@ public class PythonReclamationService {
             logger.error("Erreur lors du traitement du lot de réclamations", e);
             return List.of(createErrorResponse("Erreur lors du traitement du lot de réclamations: " + e.getMessage()));
         }
+    }
+
+    private Map<String, Object> callFlaskSingle(String texte) {
+        String url = flaskBaseUrl + "/analyser";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, String> payload = Map.of("texte", texte);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(payload, headers);
+        Map result = restTemplate.postForObject(url, entity, Map.class);
+        return result != null ? result : createErrorResponse("Réponse Flask vide");
+    }
+
+    private List<Map<String, Object>> callFlaskBatch(List<String> reclamations) {
+        String url = flaskBaseUrl + "/traiter-lot";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, List<String>> payload = Map.of("reclamations", reclamations);
+        HttpEntity<Map<String, List<String>>> entity = new HttpEntity<>(payload, headers);
+        List results = restTemplate.postForObject(url, entity, List.class);
+        return results != null ? results : List.of(createErrorResponse("Réponse Flask vide"));
     }
     
     /**
