@@ -1,0 +1,15 @@
+package com.example.forumbackend.entities;
+
+public enum EventType {
+    CRISE_FINANCIERE,
+    ANNONCE_ECONOMIQUE,
+    BULLE_SPECULATIVE,
+    EVENEMENT_SECTORIEL,
+    GEOPOLITIQUE,
+    CATASTROPHE_NATURELLE,
+    SCANDALE_ENTREPRISE,
+    FUSION_ACQUISITION,
+    RESULTAT_ENTREPRISE,
+    AUTRE
+
+}
