@@ -1,4 +1,5 @@
 package tn.esprit.examen.nomPrenomClasseExamen.services;
+import tn.esprit.examen.nomPrenomClasseExamen.services.HistoricalPriceStore;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ public class MarketReplayEngine {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final TimeCompressionCalculator compressionCalculator;
+    // ✅ NOUVEAU
+    private final HistoricalPriceStore historicalPriceStore;
 
     // ========== DONNÉES HISTORIQUES ==========
 
@@ -366,6 +369,7 @@ public class MarketReplayEngine {
 
     private void broadcastBatch(Long sessionId, TickBatch batch) {
         for (MarketTick tick : batch.getTicks()) {
+            historicalPriceStore.recordPrice(sessionId, tick.getSymbol(), tick.getClose());
             messagingTemplate.convertAndSend(
                     "/topic/session/" + sessionId + "/market-data",
                     tick
