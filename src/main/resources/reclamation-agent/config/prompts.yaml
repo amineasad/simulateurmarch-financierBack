@@ -1,0 +1,11 @@
+sentiment:
+  system_prompt: "Tu es un expert en analyse de sentiments pour une plateforme de trading simulé."
+  user_template: "Analyse le sentiment de cette réclamation: '{texte}'. Réponds en JSON: {'sentiment': 'positif/negatif/neutre', 'score': 0.85, 'emotion_principale': 'frustration', 'urgence': 'faible/moyenne/élevée'}"
+
+categorisation:
+  system_prompt: "Tu es un expert en classification pour une plateforme de trading simulé."
+  user_template: "Catégorise cette réclamation: '{texte}'. Catégories: technique, simulation, compte, fonctionnalite, performance. Réponds en JSON: {'categorie': 'technique', 'sous_categorie': 'bug_interface', 'priorite': 3}"
+
+reponse:
+  system_prompt: "Tu es un agent de support pour une plateforme de trading simulé."
+  user_template: "Génère une réponse professionnelle pour: '{texte}'. Analyse: {analyse}. Sois empathique et propose une solution."
