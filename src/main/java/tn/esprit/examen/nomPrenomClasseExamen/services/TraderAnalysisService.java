@@ -28,7 +28,7 @@ public class TraderAnalysisService {
     @Value("${trader.useFlask:false}")
     private boolean useFlask;
 
-    @Value("${trader.flask.baseUrl:http://localhost:5001}")
+    @Value("${trader.flask.baseUrl:http://localhost:5000}")
     private String traderFlaskBaseUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();

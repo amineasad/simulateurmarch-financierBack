@@ -31,12 +31,12 @@ import java.util.concurrent.TimeUnit;
 public class PatternRecognitionService {
 
     private static final Logger logger = LoggerFactory.getLogger(PatternRecognitionService.class);
-    private static final String PYTHON_SCRIPT_PATH = "src/main/resources/pattern_recognition/patternrecog.PY";
+    private static final String PYTHON_SCRIPT_PATH = "src/main/resources/pattern_recognition/patternrecog.py";
 
     @Value("${patterns.useFlask:false}")
     private boolean useFlask;
 
-    @Value("${patterns.flask.baseUrl:http://localhost:5001}")
+    @Value("${patterns.flask.baseUrl:http://localhost:5000}")
     private String patternsFlaskBaseUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
